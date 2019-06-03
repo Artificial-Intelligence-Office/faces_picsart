@@ -8,7 +8,7 @@ import numpy as np
 
 SIZE_OF_RANDOM_CHOOSE = 7
 # Считыавем тестовые изображения:
-test_dir = '../output'
+test_dir = '../output/resnet_unet'
 test_images = np.array([np.array(load_img(join(test_dir, f), grayscale=False)) / 255
                         for f in listdir(test_dir) if isfile(join(test_dir, f))])
 test_file_names = [f[:f.find('.')] for f in listdir(test_dir) if isfile(join(test_dir, f))]
@@ -23,7 +23,7 @@ random_choose_test_images = np.array(test_images)[b]
 fig = plt.figure(figsize=(15, 26))
 #fig.tight_layout()
 
-subplots_adjust(top = 1, bottom = 0, right = 1, left = 0, hspace = 0.1, wspace = 0)
+subplots_adjust(top=1, bottom=0, right=1, left=0, hspace=0.1, wspace=0)
 
 columns = 3
 rows = SIZE_OF_RANDOM_CHOOSE

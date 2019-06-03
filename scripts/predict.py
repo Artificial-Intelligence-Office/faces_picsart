@@ -8,33 +8,12 @@ from keras import backend as K
 from keras.models import Model, load_model
 import tensorflow as tf
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img#,save_img
+
+from scripts.metrics import dice_coef_K, my_dice_metric
+
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 
-
-def dice_coef_K(y_true, y_pred, smooth=1):
-    y_true_f = K.flatten(y_true)
-    y_pred_f = K.flatten(y_pred)
-    intersection = K.sum(y_true_f * y_pred_f)
-    return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
-
-
-def dice_coef_np(y_true, y_pred, smooth=1):
-    intersection = (y_true.flatten() * y_pred.flatten()).sum()
-    return -(2. * intersection + smooth) / (y_true.sum() + y_pred.sum() + smooth)
-
-def dice_coef_batch(y_true_in, y_pred_in):
-    y_pred_in = (y_pred_in > 0.5).astype(np.float32)  # added by sgx 20180728
-    batch_size = y_true_in.shape[0]
-    metric = []
-    for batch in range(batch_size):
-        value = dice_coef_np(y_true_in[batch], y_pred_in[batch])
-        metric.append(value)
-    return np.mean(metric)
-
-def my_dice_metric(label, pred):
-    metric_value = tf.py_func(dice_coef_batch, [label, pred], tf.float64)
-    return metric_value
 
 def predict_result(model ,x_test ,img_size_target): # predict both orginal and reflect x
     x_test_reflect = np.array([np.fliplr(x) for x in x_test])
@@ -60,6 +39,8 @@ test_images = np.array([np.array(load_img(join(test_dir, f), grayscale=False)) /
 test_file_names = [f[:f.find('.')] for f in listdir(test_dir) if isfile(join(test_dir, f))]
 model = load_model("../models/first_launch/resnet_weights.14--0.95.hdf5.model",
                    custom_objects={'dice_coef_K': dice_coef_K, 'my_dice_metric': my_dice_metric})
+
+# Если не хотим ждать - берём только 10 изображений для предсказания:
 valid_images = test_images[:10]
 
 pred_masks = predict_result(model, valid_images, img_size_target)

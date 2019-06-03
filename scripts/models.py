@@ -1,91 +1,8 @@
-#################################
-#         LEGACY CODE!          #
-#################################
-
-import os
-import os
-import sys
-import random
-from os import listdir
-from os.path import isfile, join
-import pandas as pd
-import numpy as np
-import cv2
-from sklearn.model_selection import train_test_split
-from tqdm import tqdm_notebook, tnrange
-from itertools import chain, islice
-from skimage.io import imread, imshow, concatenate_images
-from skimage.transform import resize
-from skimage.morphology import label
-from keras.models import Model, load_model
-from keras.layers import Input,Dropout,BatchNormalization,Activation,Add,Flatten,Dense,Reshape
-from keras.layers.core import Lambda
-from keras.layers.convolutional import Conv2D, Conv2DTranspose
-from keras.layers.pooling import MaxPooling2D
-from keras.layers.merge import concatenate
-from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
-from keras import backend as K
-import tensorflow as tf
-from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img#,save_img
-from keras.models import Sequential
-from keras.layers import Reshape
-from keras.models import Model
-from keras.layers.core import Layer, Dense, Dropout, Activation, Flatten, Reshape, Permute
-from keras.layers import Input, merge, Convolution2D, MaxPooling2D, UpSampling2D, Reshape, core, Dropout
-from keras.layers.normalization import BatchNormalization
-from keras.layers.convolutional import Convolution3D, MaxPooling3D, ZeroPadding3D , ZeroPadding3D , UpSampling3D
-from keras.layers.convolutional import Convolution2D, MaxPooling2D, UpSampling2D, ZeroPadding2D
-from keras.layers.convolutional import Convolution1D, MaxPooling1D
-from keras.layers.recurrent import LSTM
-from keras.layers.advanced_activations import LeakyReLU
-from keras.optimizers import Adam , SGD
-from keras.layers.embeddings import Embedding
-from keras.utils import np_utils
-from keras import backend as K
-from keras.layers import Input
-from keras.layers import concatenate
-
-from tensorflow.python.client import device_lib
-
-# def get_available_gpus():
-#     local_device_protos = device_lib.list_local_devices()
-#     return [x.name for x in local_device_protos if x.device_type == 'GPU']
-#
-# get_available_gpus()
-
-from scripts.loggger import TensorBoardBatchLogger
-from scripts.utils import split_every
-
-PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-# os.environ["CUDA_VISIBLE_DEVICES"] = ""
-
-# Set some parameters
-load_model_bool = False
-img_size_ori = (320, 240)
-img_size_target = (320, 240)
-
-
-print('Reading train images...')
-train_dir = '../data/train/'
-images = [np.array(load_img(join(train_dir, f), grayscale=False)) / 255
-                for f in listdir(train_dir) if isfile(join(train_dir, f))]
-print('Train images read!')
-print('Reading train masks...')
-masks_dir = '../data/train_mask/'
-masks = [np.array(load_img(join(masks_dir, f), grayscale=True)) / 255
-               for f in listdir(masks_dir) if isfile(join(masks_dir, f))]
-print('Train masks read!')
-
-# Create train/validation split stratified by salt coverage
-m = len(images)
-train_obs = np.random.choice(range(m), size=round(0.8 * m), replace=False)
-valid_obs = np.delete(range(m), train_obs)
-
-train_images = np.array([images[i] for i in train_obs])
-train_masks = np.array([masks[i].reshape(img_size_target + (1,)) for i in train_obs])
-valid_images = np.array([images[i] for i in valid_obs])
-valid_masks = np.array([masks[i].reshape(img_size_target + (1,)) for i in valid_obs])
+from keras import Input, Model
+import keras.backend as K
+from keras.layers import Lambda, Conv2D, Dropout, MaxPooling2D, Activation, UpSampling2D, concatenate, Conv2DTranspose, \
+    BatchNormalization, Add, Reshape, Flatten
+from keras.optimizers import Adam
 
 
 def convolution_block(x, filters, size, strides=(1,1), padding='same', activation=True):
@@ -95,6 +12,7 @@ def convolution_block(x, filters, size, strides=(1,1), padding='same', activatio
         x = Activation('relu')(x)
     return x
 
+
 def residual_block(blockInput, num_filters=16):
     x = Activation('relu')(blockInput)
     x = BatchNormalization()(x)
@@ -103,7 +21,7 @@ def residual_block(blockInput, num_filters=16):
     x = Add()([x, blockInput])
     return x
 
-# Build model
+
 def build_model(input_layer, start_neurons, DropoutRatio=0.5):
     # (320, 240) -> (160, 120)
     conv1 = Conv2D(start_neurons * 1, (3, 3), activation=None, padding="same")(input_layer)
@@ -215,6 +133,7 @@ def build_model(input_layer, start_neurons, DropoutRatio=0.5):
 
     return output_layer
 
+
 def unet2(inputs):
     # inputs = Input((IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
     inputs = Input(inputs)
@@ -274,6 +193,7 @@ def unet2(inputs):
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[dice_coef_K])
     return model
 
+
 def unet(pretrained_weights=None, input_size=(256, 256, 1)):
     inputs = Input(input_size)
     conv1 = Conv2D(64, 3, activation='relu', padding='same', kernel_initializer='he_normal')(inputs)
@@ -331,47 +251,9 @@ def unet(pretrained_weights=None, input_size=(256, 256, 1)):
 
     return model
 
+
 def dice_coef_K(y_true, y_pred, smooth=1):
     y_true_f = K.flatten(y_true)
     y_pred_f = K.flatten(y_pred)
     intersection = K.sum(y_true_f * y_pred_f)
     return (2. * intersection + smooth) / (K.sum(y_true_f) + K.sum(y_pred_f) + smooth)
-
-
-if load_model_bool:
-    model = load_model("../models/resnet_weights.01--0.84.hdf5.model", custom_objects={'my_dice_metric': dice_coef_K})
-else:
-    # ЯРОСЛАВ
-    input_layer = Input(img_size_target + (3,))
-    output_layer = build_model(input_layer, 16, 0.5)
-    model = Model(input_layer, output_layer)
-    model.compile(loss='binary_crossentropy', optimizer="adam", metrics=[dice_coef_K])
-    model.summary()
-
-    # UNET
-    #  = unet(input_size=img_size_target + (3, ))
-    #model = unet2(inputs=img_size_target + (3, ))
-    #model.summary()
-
-
-file_names = np.array([f[:f.find('.')] for f in listdir(train_dir) if isfile(join(train_dir, f))])
-train_file_names = np.random.permutation(file_names)[:round(0.8 * len(file_names))]
-valid_file_names = np.random.permutation(file_names)[round(0.8 * len(file_names)):]
-
-epochs = 50
-batch_size = 8
-verbose = 1
-
-reduce_lr = ReduceLROnPlateau(monitor='val_loss', mode='min', factor=0.2, patience=3, min_lr=0.00001, verbose=1)
-model_checkpoint = ModelCheckpoint("../models/resnet_weights.{epoch:02d}-loss{val_loss:.2f}-{val_dice_coef_K:.2f}.hdf5.model", save_best_only=True, verbose=1)
-TB = TensorBoardBatchLogger(project_path=PROJECT_PATH, batch_size=batch_size)
-
-history = model.fit_generator(
-                    split_every(batch_size, train_file_names, train_dir, train_masks),
-                    steps_per_epoch=len(train_file_names) // batch_size,
-                    validation_data=split_every(batch_size, valid_file_names, train_dir, train_masks),
-                    validation_steps=len(valid_file_names) // batch_size,
-                    epochs=3,
-                    callbacks=[model_checkpoint, reduce_lr, TB],
-                    verbose=1)
-print('Fitted!')
