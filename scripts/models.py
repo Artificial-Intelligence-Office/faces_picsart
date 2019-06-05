@@ -16,8 +16,8 @@ def convolution_block(x, filters, size, strides=(1,1), padding='same', activatio
 def residual_block(blockInput, num_filters=16):
     x = Activation('relu')(blockInput)
     x = BatchNormalization()(x)
-    x = convolution_block(x, num_filters, (3,3) )
-    x = convolution_block(x, num_filters, (3,3), activation=False)
+    x = convolution_block(x, num_filters, (3, 3))
+    x = convolution_block(x, num_filters, (3, 3), activation=False)
     x = Add()([x, blockInput])
     return x
 

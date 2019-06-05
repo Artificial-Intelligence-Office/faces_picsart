@@ -15,9 +15,9 @@ from scripts.utils import split_every
 
 # Constants:
 
-LOAD_MODEL = False
+LOAD_MODEL = True
 batch_size = 8
-epochs = 20
+epochs = 200
 img_size_target = (320, 240)
 train_dir = '../data/train/'
 masks_dir = '../data/train_mask/'
@@ -33,7 +33,8 @@ print('Number of val objects:', len(valid_file_names))
 
 # Model:
 if LOAD_MODEL:
-    model = load_model("../models/resnet_weights.01--0.84.hdf5.model", custom_objects={'my_dice_metric': dice_coef_K})
+    print('Loading model...')
+    model = load_model("../models/unet_weights.20-val_loss0.14-0.94.hdf5.model", custom_objects={'dice_coef_K': dice_coef_K})
 else:
     # Если обучать с нуля:
     input_layer = Input(img_size_target + (3,))
@@ -43,7 +44,7 @@ else:
     model.summary()
 
 # Checkpoints:
-model_checkpoint = ModelCheckpoint("../models/unet_weights.{epoch:02d}-val_loss{val_loss:.2f}-{val_dice_coef_K:.2f}.hdf5.model",
+model_checkpoint = ModelCheckpoint("../models/unet_weights.{epoch:02d}-val_loss{val_loss:.2f}-{val_dice_coef_K:.2f}.hdf5.model", monitor='val_dice_coef_K',
                                    save_best_only=True, verbose=1)
 reduce_lr = ReduceLROnPlateau(monitor='val_loss', mode='min', factor=0.2, patience=3, min_lr=0.00001, verbose=1)
 TB = TensorBoardBatchLogger(project_path=PROJECT_PATH, batch_size=batch_size)
