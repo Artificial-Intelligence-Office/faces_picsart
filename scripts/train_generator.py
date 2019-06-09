@@ -15,7 +15,7 @@ from scripts.utils import split_every
 
 # Constants:
 
-LOAD_MODEL = True
+LOAD_MODEL = False
 batch_size = 8
 epochs = 200
 img_size_target = (320, 240)
