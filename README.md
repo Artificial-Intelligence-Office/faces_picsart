@@ -23,5 +23,5 @@ Telegram: @DmitriiDenisov
 
 ### Neural Network Architecture:
 <p align="center">
-  <img src="https://psv4.userapi.com/c848324/u6729856/docs/d13/400a84701552/my_final_model_2.png?extra=xLjBkp2fu0fMmTUEbgmCGU1bYB60alsjxhY3tJEzJrGXXOXVWtlLgH9dddTOcJ5ThH5s-NGS-I0vXOoFQfObbdd7B16gjsG0OWXT71R9qjfFRZo-JGr6Dm7puM2v8ZNTUbSo2XjOVWGh39gP" width="350" alt="accessibility text">
+  <img src="https://psv4.userapi.com/c848324/u6729856/docs/d13/400a84701552/my_final_model_2.png?extra=xLjBkp2fu0fMmTUEbgmCGU1bYB60alsjxhY3tJEzJrGXXOXVWtlLgH9dddTOcJ5ThH5s-NGS-I0vXOoFQfObbdd7B16gjsG0OWXT71R9qjfFRZo-JGr6Dm7puM2v8ZNTUbSo2XjOVWGh39gP" width="700" alt="accessibility text">
 </p>
