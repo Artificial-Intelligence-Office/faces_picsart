@@ -18,6 +18,8 @@ Telegram: @DmitriiDenisov
 
 ### Examples of prediction:
 
+<a href="https://ibb.co/xFQNFJD"><img src="https://i.ibb.co/J3P935K/ex-4.png" alt="ex-4" border="0"></a>
+
 <img src="https://psv4.userapi.com/c848224/u6729856/docs/d17/094d8de70832/ex_3.png?extra=G8s1YldFzXJmlxZjwvULwzZU2YyZ2L9agMK0YX3nBgDYzM_jMnWCURGn1KimO9iFFdYVt6oaeBHSROyOOHGZdGz690MukKbGJvjwtaLxpcPO4kvxCOaE0329ayHVHrmM_d_Lam6QTEHy7Sx-" width="420"/> <img src="https://psv4.userapi.com/c848220/u6729856/docs/d17/f815cf3d7c6d/ex_4.png?extra=buhRaHWR-PrlvuU_yWxSczCVhEK3wf2CH5UT6npvAs3vMWVstXs8zl6jmgvAcHv3IE07k92xkb1Vk22XC2ALWyyJ1HNJLxkegoHPV_b2nCxembYtJM9SxZ_Nwnmnbp-NxTRnNSubvwUwRGLBc28" width="420"/> 
 
 ### Neural Network Architecture:
